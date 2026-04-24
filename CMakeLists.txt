@@ -19,8 +19,8 @@ add_executable(volleyball_cv main.cpp
         calibration.h
         detector.cpp
         detector.h
-        track.cpp
-        track.h)
+        tracker.cpp
+        tracker.h)
 
 target_include_directories(volleyball_cv PRIVATE
         ${OpenCV_INCLUDE_DIRS}
@@ -36,6 +36,6 @@ add_custom_command(TARGET volleyball_cv POST_BUILD
         $<TARGET_FILE_DIR:volleyball_cv>)
 
 add_custom_command(TARGET volleyball_cv POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory
-"${CMAKE_SOURCE_DIR}/models"
-"$<TARGET_FILE_DIR:volleyball_cv>/models")
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/models"
+        "$<TARGET_FILE_DIR:volleyball_cv>/models")
