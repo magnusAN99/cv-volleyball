@@ -18,7 +18,9 @@ add_executable(volleyball_cv main.cpp
         calibration.cpp
         calibration.h
         detector.cpp
-        detector.h)
+        detector.h
+        track.cpp
+        track.h)
 
 target_include_directories(volleyball_cv PRIVATE
         ${OpenCV_INCLUDE_DIRS}
