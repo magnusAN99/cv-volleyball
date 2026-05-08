@@ -3,17 +3,11 @@
 #include "court.h"
 #include "calibration.h"
 #include "detector.h"
+#include "tracker.h"
 
 int main() {
-    struct Track {
-        int id;
-        cv::Point2f worldPosition;
-        int framesSinceLastSeen;
-    };
-    std::vector<Track> tracks;
-    int nextTrackId = 0;
-
     VideoSource video;
+    Tracker tracker;
 
     if (!video.open("D:/hygge/videos/s2.mp4")) {
         std::cerr << "Could not open video file" << std::endl;
@@ -42,55 +36,10 @@ int main() {
             }
         }
 
-        //Track matching logic
-        std::vector<bool> detectionUsed(playerPoints.size(), false);
-
-        for (auto& track : tracks) {
-            constexpr float maxMatchDistance = 1.5f;
-            int bestIdx = -1;
-            float bestDist = maxMatchDistance;
-
-            for (size_t i = 0; i < playerPoints.size(); i++) {
-                if (detectionUsed[i]) continue;
-
-                float dx = playerPoints[i].x - track.worldPosition.x;
-                float dy = playerPoints[i].y - track.worldPosition.y;
-                float dist = std::sqrt(dx * dx + dy * dy);
-
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    bestIdx = static_cast<int>(i);
-                }
-            }
-
-            if (bestIdx >= 0) {
-                constexpr float alpha = 0.3f;
-                track.worldPosition.x = (1 - alpha) * track.worldPosition.x + alpha * playerPoints[bestIdx].x;
-                track.worldPosition.y = (1 - alpha) * playerPoints[bestIdx].y + alpha * playerPoints[bestIdx].y;
-
-                track.framesSinceLastSeen = 0;
-                detectionUsed[bestIdx] = true;
-            } else {
-                track.framesSinceLastSeen++;
-            }
-        }
-
-        for (size_t i = 0; i < playerPoints.size(); i++) {
-            if (detectionUsed[i]) continue;
-            tracks.push_back( {nextTrackId++, playerPoints[i], 0} );
-        }
-
-        constexpr int maxStaleFrames = 5;
-        std::erase_if(tracks,
-                      [](const Track& t) { return t.framesSinceLastSeen > maxStaleFrames; });
-
-        std::vector<cv::Point2f> trackPoints;
-        for (const auto& track : tracks) {
-            trackPoints.push_back(track.worldPosition);
-        }
+        tracker.update(playerPoints);
 
         cv::imshow("Video", annotated);
-        cv::imshow("Minimap", court.drawWithPlayers(trackPoints));
+        cv::imshow("Minimap", Court::drawWithPlayers(tracker.getActivePositions()));
 
         int key = cv::waitKey(playing ? 1 : 0);
         if (key == 'q') break;
