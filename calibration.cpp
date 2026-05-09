@@ -38,7 +38,7 @@ bool calibrateCourt(Court& court, VideoSource& video,
     int lastIndex = -1;
 
     while (state.currentIndex < totalLandmarks) {
-        cv::Mat courtImage = court.drawWithPoints(landmarks, state.currentIndex);
+        cv::Mat courtImage = Court::drawWithPoints(landmarks, state.currentIndex);
         cv::imshow("Court", courtImage);
         cv::imshow("Video", video.getFrame());
 

@@ -22,6 +22,7 @@ int main() {
     Detector detector("models/yolov8n.onnx");
     bool playing = false;
 
+    // Main loop
     while (true) {
         cv::Mat frame = video.getFrame();
         std::vector<cv::Point2f> playerPoints;
@@ -38,9 +39,11 @@ int main() {
 
         tracker.update(playerPoints);
 
+        // Show windows
         cv::imshow("Video", annotated);
         cv::imshow("Minimap", Court::drawWithPlayers(tracker.getActivePositions()));
 
+        // Controls
         int key = cv::waitKey(playing ? 1 : 0);
         if (key == 'q') break;
         if (key == ' ') playing = !playing;
